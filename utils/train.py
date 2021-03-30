@@ -3,13 +3,14 @@ import time
 import torch
 import argparse
 import torchvision
+import numpy as np 
 import torch.nn as nn
 import torch.utils.data
 import torch.optim as optim
 import torchvision.transforms as transforms
 
 from utils.function import *
-from utils.cutmix import CutMix, CutMixCrossEntropyLoss
+from utils.cutmix import cutmix
 from model.SE import SEresnet
 from torch.optim import lr_scheduler
 from torch.utils.data import DataLoader
@@ -54,10 +55,6 @@ def main(args):
                                                 drop_last = True, 
                                                 batch_size = args.batch_size , 
                                                 shuffle=True)
-
-
-        # train_dataset Cutmix add
-        # train_datset = CutMix()
 
         val_loader = torch.utils.data.DataLoader(dataset=val_dataset,
                                                 pin_memory = True, 
@@ -128,17 +125,22 @@ def train_one_epoch(args, train_loader, model, criterion, optimizer, epoch_):
 
                 input_v = input_.to(device)
                 target = target.to(device)
-                target_v = target
+                # target_v = target
+                batch = (input_v, target)
 
-                output = model(input_v)
-                loss = criterion(output, target_v)
+                r = np.random.rand(1)
+                if args.alpha > 0 and args.cutmix_prob > r :
+                        input_v, target_a, target_b, lam = cutmix(batch, args.alpha)
+                        output = model(input_v)
+                        loss = criterion(output, target_a) * lam + criterion(output, target_b) * (1 - lam)
+                
+                else:
+                        output = model(input_v)
+                        loss = criterion(output, target)
 
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
-
-                # output = output.float()
-                # loss = loss.float()
             
                 # measure accuracy and record loss
                 prec1 = accuracy(output.data, target)[0]
@@ -170,10 +172,10 @@ def validation(args, val_loader, model, criterion):
                 for i, (input_, target) in enumerate(val_loader):
                         input_v = input_.to(device)
                         target = target.to(device)
-                        target_v = target
+                        # target_v = target
 
                         output = model(input_v)
-                        loss = criterion(output, target_v)
+                        loss = criterion(output, target)
 
                         # loss = loss.float()
 

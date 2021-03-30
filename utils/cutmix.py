@@ -1,22 +1,35 @@
 # re-implementation of CutMix
 # CutMix, CutMixCrossEntropyLoss
-
+import torch
 import numpy as np 
-from torch.utils.data.dataset import Dataset 
+import torch.nn as nn
 
-class CutMix(Dataset):
-    
-    def __init__ (self, dataset, num_class = 10, num_mix = 1, alpha = 1.0, prob = 1.0 ):
-        self.dataset = dataset
-        self.num_class = num_class
-        self.num_mix = num_mix
-        self.alpha = alpha
-        self.prob = prob
-    
-    def __getitem__(self, idx):
-# alphas = torch.from_numpy(np.random.beta(0.4, 0.4
+def cutmix(minibatch, alpha):
+    data, targets = minibatch
+    indices = torch.randperm(data.size(0))
+    data_shuffled = data[indices]
+    target_shuffled = targets[indices]
 
-        return data, ohe_label
+    # Beta distribution sampling
+    # lam = torch.from_numpy(np.random.beta(alpha, alpha))
+    lam = np.random.beta(alpha, alpha)
+    img_H, img_W = data.shape[2:]
+     
+    # rx = torch.from_numpy(np.random.uniform(0, W))
+    # ry = torch.from_numpy(np.random.uniform(0, H))
+    rx = np.random.uniform(0, img_W)
+    ry = np.random.uniform(0,img_H)
+    rh = img_H * np.sqrt(1 - lam)
+    rw = img_W * np.sqrt(1 - lam)
+    # rh = img_H * torch.sqrt(1 - lam)
+    # rw = img_W * torch.sqrt( 1 - lam)
+     
+    x1 = np.round(np.clip(rx - rw // 2, 0, img_W))
+    y1 = np.round(np.clip(ry - rh // 2, 0 , img_H))
+    x2 = np.round(np.clip(rx + rw // 2, 0, img_W))
+    y2 = np.round(np.clip(ry + rh // 2, 0 , img_H))
+     
+    lam = 1 - ((x2 - x1)  * (y2 - y1) / (img_H * img_W))
+    data[ : , : , int(y1) : int(y2), int(x1) : int(x2)] = data_shuffled[ : , : , int(y1) : int(y2), int(x1) : int(x2) ] 
 
-    def __len__(self):
-        return len(self.dataset)
+    return data, targets, target_shuffled, lam

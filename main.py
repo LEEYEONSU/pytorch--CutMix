@@ -8,8 +8,6 @@ import torch.utils.data
 import torch.optim as optim
 import torchvision.transforms as transforms
 
-from google.colab import drive
-
 from utils.train import *
 from utils.function import *
 from torch.optim import lr_scheduler
@@ -29,7 +27,7 @@ parser.add_argument('--weight_decay', default = 1e-4, help = 'weight_decay')
 parser.add_argument('--momentum', default = 0.9, help = 'momentum')
 parser.add_argument('--normalize', default = 'batchnorm', help = 'choose batchnorm or groupnorm')
 
-parser.add_argument('--Epoch', default = 80, type=int,  help = ' Epoch ')
+parser.add_argument('--Epoch', default = 500, type=int,  help = ' Epoch ')
 parser.add_argument('--batch_size', default = 128, type=int,  help = 'TRAIN batch size ')
 parser.add_argument('--test_batch_size', default = 100, type=int,  help = 'TEST batch size')
 
@@ -37,6 +35,10 @@ parser.add_argument('--test_batch_size', default = 100, type=int,  help = 'TEST 
 parser.add_argument('--cutout', default=False, help='apply cutout')
 parser.add_argument('--n_masks', type=int, default=1, help='number of masks to cut out from image')
 parser.add_argument('--length', type=int, default=16,  help='length of the masks')
+
+#CutMix
+parser.add_argument('--alpha', default=1.0, type=float, help='hyperparameter alpha')
+parser.add_argument('--cutmix_prob', default=0.5, type=float, help='cutmix probability')
 
 args = parser.parse_args()
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .#
