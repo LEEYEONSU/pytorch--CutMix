@@ -1,7 +1,6 @@
 # re-implementation of CutMix
 # CutMix, CutMixCrossEntropyLoss
 import torch
-# import numpy as np 
 import torch.nn as nn
 
 from torch.distributions import Beta, Uniform
