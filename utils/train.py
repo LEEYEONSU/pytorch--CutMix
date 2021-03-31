@@ -74,8 +74,6 @@ def main(args):
 
         model = model.to(device)
 
-        # criterion -> CutMixCrossEntropyLoss add
-        #  creterion = CutMixCrossEntropyLoss().to(device)
         criterion = nn.CrossEntropyLoss().to(device)
         optimizer = optim.SGD(model.parameters() , lr = args.lr , weight_decay = args.weight_decay, momentum = args.momentum)
         lr_schedule = lr_scheduler.MultiStepLR(optimizer, milestones = [250,375], gamma = 0.1)
@@ -125,10 +123,9 @@ def train_one_epoch(args, train_loader, model, criterion, optimizer, epoch_):
 
                 input_v = input_.to(device)
                 target = target.to(device)
-                # target_v = target
                 batch = (input_v, target)
 
-                r = np.random.rand(1)
+                r = torch.rand(1)
                 if args.alpha > 0 and args.cutmix_prob > r :
                         input_v, target_a, target_b, lam = cutmix(batch, args.alpha)
                         output = model(input_v)
