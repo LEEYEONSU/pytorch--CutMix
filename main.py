@@ -38,7 +38,7 @@ parser.add_argument('--length', type=int, default=16,  help='length of the masks
 
 #CutMix
 parser.add_argument('--alpha', default=1.0, type=float, help='hyperparameter alpha')
-parser.add_argument('--cutmix_prob', default=0.5, type=float, help='cutmix probability')
+parser.add_argument('--cutmix_prob', default=1.0, type=float, help='cutmix probability')
 
 args = parser.parse_args()
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .#
