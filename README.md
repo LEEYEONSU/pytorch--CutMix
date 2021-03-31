@@ -1,6 +1,6 @@
 # pytorch--CutMix (pytorch)
 - Implementation with torch
-- Other code for model and normalization availabe at https://github.com/LEEYEONSU/pytorch--SENet
+- Other code for model and normalization available at https://github.com/LEEYEONSU/pytorch--SENet
 
 ---
 
@@ -24,7 +24,7 @@
 
   |               | [SE + resnet-32 + batchnorm](https://github.com/LEEYEONSU/pytorch--SENet) | SE + resnet-32 + batchnorm + [cutmix](https://github.com/LEEYEONSU/pytorch--CutMix/blob/main/utils/cutmix.py) |
   | ------------- | :----------------------------------------------------------: | :----------------------------------------------------------: |
-  | top - 1 error |                             4.76                             |                                                              |
+  | top - 1 error |                             4.76                             |                             4.50                             |
 
 
 
