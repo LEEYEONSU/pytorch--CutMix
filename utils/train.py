@@ -15,6 +15,7 @@ from model.SE import SEresnet
 from torch.optim import lr_scheduler
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
+from model.cnn import NNet, loss_fn_kd
 
 best_prec1 = 0
 def main(args):
@@ -64,31 +65,26 @@ def main(args):
         # Device Config
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-        if args.normalize == 'groupnorm':
-                model = SEresnet_gn()
-
-        elif args.normalize == 'groupnorm+ws':
-                model = SEresnet_gn_ws()
-        else : 
-                 model = SEresnet()
-
+        model = SEresnet()
         model = model.to(device)
 
+        # criterion , optimizer, learning rate scheduler 
         criterion = nn.CrossEntropyLoss().to(device)
         optimizer = optim.SGD(model.parameters() , lr = args.lr , weight_decay = args.weight_decay, momentum = args.momentum)
         lr_schedule = lr_scheduler.MultiStepLR(optimizer, milestones = [250,375], gamma = 0.1)
 
         if args.evaluate :
-                model.load_state_dict(torch.load('./save_model/model.th'))  
+                model.load_state_dict(torch.load('./save_model/model.pt'))  
                 model.to(device)
                 validation(args, val_loader, model, criterion)
 
         #  Epoch = args.Epoch
         for epoch_ in range(0, args.Epoch):
+
                 print('current lr {:.5e}'.format(optimizer.param_groups[0]['lr']))
                 train_one_epoch(args, train_loader, model, criterion, optimizer, epoch_)
-                lr_schedule.step()
 
+                lr_schedule.step()
                 prec1 = validation(args, val_loader, model, criterion)
 
                 is_best = prec1 > best_prec1
@@ -125,6 +121,7 @@ def train_one_epoch(args, train_loader, model, criterion, optimizer, epoch_):
                 target = target.to(device)
                 batch = (input_v, target)
 
+                # add CutMix 
                 r = torch.rand(1)
                 if args.alpha > 0 and args.cutmix_prob > r :
                         input_v, target_a, target_b, lam = cutmix(batch, args.alpha)
@@ -164,12 +161,10 @@ def validation(args, val_loader, model, criterion):
         model.eval()
 
         end = time.time()
-
         with torch.no_grad():
                 for i, (input_, target) in enumerate(val_loader):
                         input_v = input_.to(device)
                         target = target.to(device)
-                        # target_v = target
 
                         output = model(input_v)
                         loss = criterion(output, target)

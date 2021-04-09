@@ -40,6 +40,9 @@ parser.add_argument('--length', type=int, default=16,  help='length of the masks
 parser.add_argument('--alpha', default=1.0, type=float, help='hyperparameter alpha')
 parser.add_argument('--cutmix_prob', default=1.0, type=float, help='cutmix probability')
 
+#Knowledge Distillation
+parser.add_argument('--KD', default = True, help = 'Knowledge distillation yes or no ')
+
 args = parser.parse_args()
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .#
 
