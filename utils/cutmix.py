@@ -6,6 +6,7 @@ import torch.nn as nn
 from torch.distributions import Beta, Uniform
 
 def cutmix(minibatch, alpha):
+    
     data, targets = minibatch
     indices = torch.randperm(data.size(0))
     data_shuffled = data[indices]
